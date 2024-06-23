@@ -20,17 +20,3 @@ Watson AI libraries are embeddable libraries that are preinstalled in the Cloud 
 
 In the projects, I developed web apps with incorporated AI functionality using IBM Watson libraries. 
 
-Both projects followed the same application creation steps including:
-
-Create a function for the application
-
-Package the application function
-
-Run unit testing of the function by calling it as a package
-
-Deploy the application over the web using Flask
-
-Incorporate Error handling to the application
-
-Run static code analysis on the codes created
-
