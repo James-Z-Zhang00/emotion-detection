@@ -1,4 +1,4 @@
-# Repository for final project
+# Emotion Detection Web Application
 
 By completing this project, I have:
 
