@@ -4,9 +4,11 @@ A Web Application project to analyze emotions from user-provided textual data, i
 
 CRUD operations embedded with dynamic http requests.
 
-## Main Objectives
+## Objectives
 
 Develop a Python package that processes string variable with IBM Watson NLP (Natural Language Processing) Libraries, return the emotion analysis in a JSON file.
+
+Create a front end UI for the user to enter text message, sent the http request and display the analysis results.
 
 Build a Python UnitTest module to test the program.
 
@@ -16,47 +18,39 @@ Deploy the app by Python Flask framework.
 
 ## Emotion Analysis
 
-User without authentication can send http GET request to:
-- Get all books by `/` route
-- Get book by ISBN by `/isbn/:isbn` route
-- Get book by title by `/title/:title` route
-- Get book by author by `/author/:author` route
+The feature that get the emotion report and sent the formatted data back to the UI with IBM Watson Natural Language Processing.
 
-```js
-// Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  res.send(JSON.stringify(books,null,4));
-});
-```
+```python
+def emotion_detector(text_to_analyse):
+    url = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
+    # url for using IBM Watson NLP libraries
+    inputJson = { "raw_document": { "text": text_to_analyse } }
+    # Create JSON file for the library to proceed analysis
+    Headers = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
+    # Create the header of request before sending
+    response = requests.post(url, json = inputJson, headers = Headers)
+    # Send the request by POST method to the url we defined before, with the given JSON file and the header
+    formatted_response = json.loads(response.text)
+    # Extract the text part of the response and convert it to JSON
 
-```js
-// Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  const isbn= req.params.isbn;
-  let filtered_book = books.filter((book) => book.isbn == isbn);
-  const booksString = JSON.stringify(filtered_book, null, 4);
-  res.send(booksString);
- });
-```
-
-```js
-// Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  const title = req.params.title;
-  let filtered_book = books.filter((book) => book.title == title);
-  const booksString = JSON.stringify(filtered_book, null, 4) + "\n";
-  res.send(booksString);
-});
-```
-
-```js
-// Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  const author = req.params.author;
-  let filtered_book = books.filter((book) => book.author == author);
-  const booksString = JSON.stringify(filtered_book, null, 4) + "\n";
-  res.send(booksString);
-});
+    if response.status_code == 400 or response.status_code == 304:
+    # Error handling: if there's an error (invaild text input or page not found)
+        for f in formatted_response:
+            formatted_response[f] = None
+        formatted_response['dominant_emotion'] = None
+        # Set all attributes of the response to None and add key-value pair dominant_emotion : None
+        # For the UI to know there's an invaild return
+        return formatted_response
+        # Return the response from here, the function will not go any further
+        
+    emotions = formatted_response['emotionPredictions'][0]['emotion']
+    # Extract the emotion part of the response JSON
+    dominant_emotion = _get_dominant_emotion(emotions)
+    # Get the dominant emotion (the emotion with the highest score)
+    emotions['dominant_emotion'] = str(dominant_emotion)
+    # Set the dominant_emotion data
+    return emotions
+    # Return the response to the UI
 ```
 
 User with authentication can access to:
